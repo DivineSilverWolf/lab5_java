@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,6 +23,7 @@ public class Server {
         ConcurrentSkipListSet<String> names = new ConcurrentSkipListSet<>();
         ConcurrentHashMap<String, SocketConnect> mapNameAndSocketConnect = new ConcurrentHashMap<>();
         AtomicReference<String>[] messageHistory = new AtomicReference[SIZE_HISTORY];
+        ExecutorService pool = Executors.newCachedThreadPool();
         for(int i=START; i<messageHistory.length; i++)
             messageHistory[i] = new AtomicReference<>();
         AtomicInteger number = new AtomicInteger(START);;
@@ -30,7 +33,7 @@ public class Server {
                 LOGGER.info("waiting for a new request");
                 Socket socket = serverSocket.accept();
                 LOGGER.warn("load new Thread");
-                new Thread(new ServerHandler(socket, mapNameAndSocketConnect, names, messageHistory, number)).start();
+                pool.execute(new ServerHandler(socket, mapNameAndSocketConnect, names, messageHistory, number));
             }
         }
     }
