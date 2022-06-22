@@ -20,6 +20,7 @@ public class ModelMenu {
     private static final String ERROR_PRESENT = "Это имя уже есть";
     private static final String ERROR_EMPTY_OR_SPACE = "Имя не может содержать только пробелы или вовсе быть пустым";
     private static final String CHAT = "chat";
+    private static final String ERROR_SERVER = "Не удалось установить соединение с сервером. Попробуйте повторить попытку позже.";
     public static void goChat(TextField name, Text error, Button start){
         Socket socket = new Socket();
         try{
@@ -41,6 +42,7 @@ public class ModelMenu {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            error.setText(ERROR_SERVER);
         }
     }
     public static void setRoot(String fxml, Scene scene, Socket socket, Scanner scanner, PrintWriter writer, String name) throws IOException {
