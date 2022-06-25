@@ -17,10 +17,14 @@ public class MenuController implements Initializable {
     private Button start;
     @FXML
     private TextField name;
+    @FXML
+    private TextField address;
+    @FXML
+    private Button autoSelection;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        start.setOnAction(actionEvent -> ModelMenu.goChat(name,error,start));
+        start.setOnAction(actionEvent -> ModelMenu.goChat(name,error,start,address));
+        autoSelection.setOnAction(actionEvent -> ModelMenu.autoSelection(address, autoSelection));
     }
-
 
 }
