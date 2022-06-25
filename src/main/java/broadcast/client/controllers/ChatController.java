@@ -57,7 +57,7 @@ public class ChatController implements Initializable {
         MultipleSelectionModel<String> participantSelectionModel = participant.getSelectionModel();
 
         chatSelectionModel.selectedItemProperty().addListener((changed, oldValue, newValue) -> {
-            content.putString(newValue.getText());  
+            content.putString(newValue.getText());
             clipboard.setContent(content);
         });
         participantSelectionModel.selectedItemProperty().addListener((changed, oldValue, newValue) -> {

@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Scanner;
@@ -23,10 +22,10 @@ public class ModelMenu {
     private static final String ERROR_EMPTY_OR_SPACE = "Имя не может содержать только пробелы или вовсе быть пустым";
     private static final String CHAT = "chat";
     private static final String ERROR_SERVER = "Не удалось установить соединение с сервером. Попробуйте повторить попытку позже или поменять ip адрес сервера.";
-    public static void goChat(TextField name, Text error, Button start, TextField address){
+    public static void goChat(TextField name, Text error, Button start, TextField address, TextField port){
         Socket socket = new Socket();
         try{
-            socket.connect(new InetSocketAddress(address.getText(), 8080), 2000);
+            socket.connect(new InetSocketAddress(address.getText(), Integer.parseInt(port.getText())), 2000);
             Scanner scanner = new Scanner(socket.getInputStream());
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             writer.println(name.getText().trim());
@@ -57,23 +56,29 @@ public class ModelMenu {
         return fxmlLoader.load();
     }
 
-    private static final String FILE_NAME = "..\\lab5Java\\lab5Java\\addressIP";
-
-    private static boolean connect(String address){
-        try(Socket socket = new Socket(address, 8080)){
+    private static boolean connect(String address, int port){
+        try(Socket socket = new Socket(address, port)){
             return true;
         }
         catch (IOException e){
             return false;
         }
     }
-
-    public static void autoSelection(TextField address, Button select){
+    private static final String FILE_NAME = "..\\lab5Java\\lab5Java\\addressIP";
+    private static final char DIVISION_ADDRESS = ':';
+    private static final int BIOS = 1;
+    private static final int START_ADDRESS = 0;
+    public static void autoSelection(TextField address, TextField port, Button select){
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
             String string = reader.readLine();
             while(string != null) {
-                if(connect(string)) {
-                    address.setText(string);
+
+                String strAddress = string.substring(START_ADDRESS, string.indexOf(DIVISION_ADDRESS));
+                int intPort = Integer.parseInt(string.substring(string.indexOf(DIVISION_ADDRESS) + BIOS));
+
+                if(connect(strAddress, intPort)) {
+                    address.setText(strAddress);
+                    port.setText(intPort + "");
                     break;
                 }
                 string = reader.readLine();

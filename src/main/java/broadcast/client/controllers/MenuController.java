@@ -12,6 +12,8 @@ import javafx.scene.text.Text;
 
 public class MenuController implements Initializable {
     @FXML
+    private TextField port;
+    @FXML
     private Text error;
     @FXML
     private Button start;
@@ -23,8 +25,8 @@ public class MenuController implements Initializable {
     private Button autoSelection;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        start.setOnAction(actionEvent -> ModelMenu.goChat(name,error,start,address));
-        autoSelection.setOnAction(actionEvent -> ModelMenu.autoSelection(address, autoSelection));
+        start.setOnAction(actionEvent -> ModelMenu.goChat(name,error,start,address, port));
+        autoSelection.setOnAction(actionEvent -> ModelMenu.autoSelection(address, port, autoSelection));
     }
 
 }
