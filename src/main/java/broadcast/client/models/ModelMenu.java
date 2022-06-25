@@ -26,7 +26,6 @@ public class ModelMenu {
     public static void goChat(TextField name, Text error, Button start, TextField address){
         Socket socket = new Socket();
         try{
-            System.out.println(InetAddress.getLocalHost());
             socket.connect(new InetSocketAddress(address.getText(), 8080), 2000);
             Scanner scanner = new Scanner(socket.getInputStream());
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
