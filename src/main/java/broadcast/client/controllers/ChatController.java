@@ -1,14 +1,8 @@
 package broadcast.client.controllers;
 
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ResourceBundle;
-import java.util.Scanner;
-
 import broadcast.client.models.Chat;
 import broadcast.client.models.ChatModels;
+import broadcast.general.SocketConnect;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,11 +11,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ResourceBundle;
 
 public class ChatController implements Initializable {
-    private final String END_ID = "END_FAFAFAC528";
-    private final String NAME_ID = "NAME_ZAFAPAC528";
     private final String PATTERN = " 'Дата:' E yyyy.MM.dd.'Время:' HH:mm:ss.";
     @FXML
     private ListView chat;
@@ -31,15 +28,11 @@ public class ChatController implements Initializable {
     private ListView participant;
 
 
-    private final Socket socket;
-    private final Scanner scanner;
-    private final PrintWriter writer;
+    private final SocketConnect socketConnect;
     private final String name;
 
-    public ChatController(Socket socket, Scanner scanner, PrintWriter writer, String name) {
-        this.socket = socket;
-        this.scanner = scanner;
-        this.writer = writer;
+    public ChatController(SocketConnect socketConnect, String name) {
+        this.socketConnect = socketConnect;
         this.name = name;
     }
 
@@ -65,10 +58,10 @@ public class ChatController implements Initializable {
             clipboard.setContent(content);
         });
 
-        Chat finalChat = ChatModels.loadChatResources(socket,langsParticipant,langsChat,scanner,writer);
+        Chat finalChat = ChatModels.loadChatResources(socketConnect, langsParticipant, langsChat);
         SimpleDateFormat formatForDateNow = new SimpleDateFormat(PATTERN);
-        message.setOnKeyPressed(keyEvent -> ChatModels.pushMessage(keyEvent,message,name,formatForDateNow,finalChat,END_ID));
-        ChatModels.startTimeLineRequests(finalChat, NAME_ID);
+        message.setOnKeyPressed(keyEvent -> ChatModels.pushMessage(keyEvent, message, name, formatForDateNow, finalChat));
+        ChatModels.startTimeLineRequests(finalChat, name);
 
     }
 }

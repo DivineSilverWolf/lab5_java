@@ -1,5 +1,7 @@
 package broadcast.client.models;
 
+import broadcast.general.SocketConnect;
+import broadcast.general.message.type.Message;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
@@ -12,11 +14,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
 
 public class ChatModels {
     private static String NEXT_LINE = "\n";
@@ -27,7 +26,7 @@ public class ChatModels {
     private static int TIME_TO_GETTER_RESOURCES = 1000;
     private static int TIME_ENDLESSLY = -1;
 
-    public static void pushMessage(KeyEvent keyEvent, TextArea message, String name, SimpleDateFormat formatForDateNow, Chat finalChat, final String END_ID) {
+    public static void pushMessage(KeyEvent keyEvent, TextArea message, String name, SimpleDateFormat formatForDateNow, Chat finalChat) {
         KeyCodeCombination keyComb = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
         if (keyComb.match(keyEvent)) {
             int position = message.getCaretPosition();
@@ -38,22 +37,28 @@ public class ChatModels {
             Date date = new Date();
             message.setText(message.getText().substring(START, position - BIOS) + message.getText().substring(position));
 
-            String messageText = message.getText().trim() + NEXT_LINE + END_ID;
+            String messageText = message.getText().trim();
             message.setText(EMPTY_STR);
             try {
-                finalChat.chat(NAME + name + formatForDateNow.format(date) + NEXT_LINE + messageText);
+                Message messageOut = new Message();
+                messageOut.setMessage(messageText);
+                messageOut.setName(name);
+                messageOut.setDate(formatForDateNow.format(date));
+                finalChat.chat(messageOut);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static void startTimeLineRequests(Chat finalChat, final String NAME_ID) {
+    public static void startTimeLineRequests(Chat finalChat, final String name) {
+        Message messageOut = new Message();
+        messageOut.setName(name);
         Timeline timeline = new Timeline(new KeyFrame(
                 Duration.millis(TIME_TO_GETTER_RESOURCES), //1000 мс * 60 сек = 1 мин
                 ae -> {
                     try {
-                        finalChat.chat(NAME_ID);
+                        finalChat.chat(messageOut);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -62,10 +67,11 @@ public class ChatModels {
         timeline.setCycleCount(TIME_ENDLESSLY);
         timeline.play();
     }
-    public static Chat loadChatResources(Socket socket, ObservableList<String> langsParticipant, ObservableList<Label> langsChat, Scanner scanner, PrintWriter writer){
+
+    public static Chat loadChatResources(SocketConnect socketConnect, ObservableList<String> langsParticipant, ObservableList<Label> langsChat) {
         Chat chat = null;
         try {
-            chat = new Chat(socket,langsParticipant,langsChat,scanner,writer);
+            chat = new Chat(socketConnect, langsParticipant, langsChat);
             chat.chat();
         } catch (IOException e) {
             e.printStackTrace();

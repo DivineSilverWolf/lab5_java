@@ -22,6 +22,7 @@ public class Client extends Application {
         stage.setTitle("OrangeTange");
         stage.show();
     }
+
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();

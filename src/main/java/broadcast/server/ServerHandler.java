@@ -1,5 +1,8 @@
 package broadcast.server;
 
+import broadcast.general.SocketConnect;
+import broadcast.general.message.type.Message;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,9 +21,10 @@ public class ServerHandler implements Runnable {
     private final ConcurrentSkipListSet<String> names;
     private final Socket socket;
     private final ConcurrentHashMap<String, SocketConnect> mapNameAndSocketConnect;
-    private final AtomicReference<String>[] messageHistory;
+    private final AtomicReference<Message>[] messageHistory;
     private final AtomicInteger number;
-    public ServerHandler(Socket socket, ConcurrentHashMap<String, SocketConnect> mapNameAndSocketConnect, ConcurrentSkipListSet<String> names, AtomicReference<String>[] messageHistory, AtomicInteger number) {
+
+    public ServerHandler(Socket socket, ConcurrentHashMap<String, SocketConnect> mapNameAndSocketConnect, ConcurrentSkipListSet<String> names, AtomicReference<Message>[] messageHistory, AtomicInteger number) {
         this.mapNameAndSocketConnect = mapNameAndSocketConnect;
         this.names = names;
         this.socket = socket;
@@ -30,19 +34,19 @@ public class ServerHandler implements Runnable {
 
     @Override
     public void run() {
-        final Logger LOGGER = LogManager.getLogger(ServerHandler.class.getName()+ " : Thread:[" + Thread.currentThread().getName()
+        final Logger LOGGER = LogManager.getLogger(ServerHandler.class.getName() + " : Thread:[" + Thread.currentThread().getName()
                 + "] : ");
         try {
-            SocketConnect socketConnect = new SocketConnect(socket);
+            SocketConnect socketConnect = new SocketConnect(socket, new Gson());
             socket.setSoTimeout(TIME_OUT);
             LOGGER.info("Client start load");
             String name = LoaderClient.load(socketConnect, names, mapNameAndSocketConnect);
             LOGGER.info("Client final load");
             LoaderClient.finalLoad(number, messageHistory, socketConnect, name, names, mapNameAndSocketConnect, END_ID);
             LOGGER.info("start listen and send");
-            ServerListenerAndSender.listenAndSend(socketConnect,number,messageHistory,mapNameAndSocketConnect,names,name,END_ID,NAME_ID);
+            ServerListenerAndSender.listenAndSend(socketConnect, number, messageHistory, mapNameAndSocketConnect, names, name, END_ID, NAME_ID);
             LOGGER.info("broadcast.client out");
-            TerminatingTheConnection.endConnect(socketConnect,number,messageHistory,mapNameAndSocketConnect, names, name, END_ID);
+            TerminatingTheConnection.endConnect(socketConnect, number, messageHistory, mapNameAndSocketConnect, names, name, END_ID);
             LOGGER.info("broadcast.client out completion");
         } catch (IOException e) {
             e.printStackTrace();
